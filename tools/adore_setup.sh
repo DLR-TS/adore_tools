@@ -9,7 +9,7 @@ trap 'get_help' EXIT
 exiterr (){ printf "$@\n"; exit 1;}
 
 CLONE_DIR="${HOME}"
-SUPPORTED_UBUNTU_VERSIONS="20.04 20.10 22.04"
+SUPPORTED_UBUNTU_VERSIONS="20.04 20.10 22.04 24.04"
 REQUIRED_FREESPACE_GB="20"
 ADORE_REPO="https://github.com/eclipse/adore.git"
 
