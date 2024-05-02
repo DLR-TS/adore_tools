@@ -17,6 +17,7 @@ ADORE_HELP_LINK="https://github.com/eclipse/adore/issues"
 ADORE_DOCS_LINK="https://eclipse.github.io/adore/"
 
 HEADLESS=0
+SKIP_PREREQUISITE_CHECKS=0
 
 get_help(){
     local exit_status=$?
@@ -38,9 +39,10 @@ Script description here.
 
 Available options:
 
--h, --help         Print this help and exit
--H, --headless     Run ADORe installation in headless mode 
--v, --verbose      Print script debug info
+-h, --help                      Print this help and exit
+-H, --headless                  Run ADORe installation in headless mode 
+-s, --skip-prerequisite-checks  Do not run prerequisite checks for storage, os, etc 
+-v, --verbose                   Print script debug info
 EOF
   exit
 }
@@ -50,6 +52,7 @@ function parse_params() {
   while :; do
     case "${1-}" in
     -h | --help) usage ;;
+    -s | --skip-prerequisite-checks) SKIP_PREREQUISITE_CHECKS=1 ;;
     -v | --verbose) set -x ;;
     -H | --headless) HEADLESS=1 ;;
     -?*) exiterr "ERROR: Unknown option: $1" ;;
@@ -180,8 +183,13 @@ success(){
 
 parse_params "$*"
 banner
-check_freespace
-check_os_version
+if [[ $SKIP_PREREQUISITE_CHECKS == 0 ]]; then
+    check_freespace
+    check_os_version
+else
+    printf "Prerequsite checks skipped...\n"
+fi
+exit 15
 install_dependencies
 clone_adore
 install_docker
