@@ -39,7 +39,7 @@ Script description here.
 Available options:
 
 -h, --help         Print this help and exit
--H, --headless     Run ADORe installation in headless mode 
+-u, --unattended   Run ADORe installation in unattended mode 
 -v, --verbose      Print script debug info
 EOF
   exit
@@ -161,10 +161,10 @@ clone_adore(){
 
 build_adore_cli(){
 newgrp docker << END
-    cd "${CLONE_DIR}/adore"
-    make build
-    make cli
-    make build_catkin_base
+    cd "${CLONE_DIR}/adore" && make build
+END
+newgrp docker << END
+    cd "${CLONE_DIR}/adore" && make cli
 END
 }
 
