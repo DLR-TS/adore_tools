@@ -9,7 +9,7 @@ trap 'get_help' EXIT
 exiterr (){ printf "$@\n"; exit 1;}
 
 CLONE_DIR="${HOME}"
-SUPPORTED_UBUNTU_VERSIONS="20.04 20.10 22.04"
+SUPPORTED_UBUNTU_VERSIONS="20.04 20.10 22.04 24.04"
 REQUIRED_FREESPACE_GB="20"
 ADORE_REPO="https://github.com/eclipse/adore.git"
 
@@ -17,6 +17,7 @@ ADORE_HELP_LINK="https://github.com/eclipse/adore/issues"
 ADORE_DOCS_LINK="https://eclipse.github.io/adore/"
 
 HEADLESS=0
+SKIP_PREREQUISITE_CHECKS=0
 
 get_help(){
     local exit_status=$?
@@ -31,16 +32,17 @@ get_help(){
 }
 
 usage() {
-  cat << EOF # remove the space between << and EOF, this is due to web plugin issue
+  cat << EOF
 Usage: $(basename "${BASH_SOURCE[0]}") [-h] [-v] [-f] -p param_value arg1 [arg2...]
 
 Script description here.
 
 Available options:
 
--h, --help         Print this help and exit
--u, --unattended   Run ADORe installation in unattended mode 
--v, --verbose      Print script debug info
+-h, --help                      Print this help and exit
+-H, --headless                  Run ADORe installation in headless mode 
+-s, --skip-prerequisite-checks  Do not run prerequisite checks for storage, os, etc 
+-v, --verbose                   Print script debug info
 EOF
   exit
 }
@@ -50,6 +52,7 @@ function parse_params() {
   while :; do
     case "${1-}" in
     -h | --help) usage ;;
+    -s | --skip-prerequisite-checks) SKIP_PREREQUISITE_CHECKS=1 ;;
     -v | --verbose) set -x ;;
     -H | --headless) HEADLESS=1 ;;
     -?*) exiterr "ERROR: Unknown option: $1" ;;
@@ -180,8 +183,13 @@ success(){
 
 parse_params "$*"
 banner
-check_freespace
-check_os_version
+if [[ $SKIP_PREREQUISITE_CHECKS == 0 ]]; then
+    check_freespace
+    check_os_version
+else
+    printf "Prerequsite checks skipped...\n"
+fi
+
 install_dependencies
 clone_adore
 install_docker
